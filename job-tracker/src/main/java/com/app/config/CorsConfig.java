@@ -17,8 +17,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000",
-                "https://jobtracker.vercel.app"
+               // "http://localhost:3000",
+                "https://jobapplicationstracker.netlify.app/"
         ));
 
         config.setAllowedMethods(Arrays.asList(
