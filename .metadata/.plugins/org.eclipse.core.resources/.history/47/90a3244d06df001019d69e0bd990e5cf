@@ -1,0 +1,60 @@
+package com.app.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.app.model.JobApplication;
+import com.app.service.JobApplicationService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/jobs")
+@CrossOrigin("http://localhost:5173")
+public class JobApplicationController {
+
+    private final JobApplicationService service;
+
+    public JobApplicationController(JobApplicationService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/add")
+    public JobApplication addJob(@RequestBody JobApplication application) {
+        System.out.println("Received: " + application);
+        return service.add(application);
+    }
+
+
+    @GetMapping("/all")
+    public List<JobApplication> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/status/{status}")
+    public List<JobApplication> getByStatus(@PathVariable String status) {
+        return service.getByStatus(status);
+    }
+
+    @GetMapping("/search/{company}")
+    public List<JobApplication> searchByCompany(@PathVariable("companyName") String company) {
+        return service.searchByCompany(company);
+    }
+    
+    @GetMapping("/{id}")
+    public JobApplication getById(@PathVariable("id") Long id) {
+        return service.getById(id);
+    }
+
+    @PutMapping("/update/{id}")
+    public JobApplication updateJob(
+            @PathVariable("id") Long id,
+            @RequestBody JobApplication job) {
+        return service.update(id, job);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteJob(@PathVariable("id") Long id) {
+        service.delete(id);
+    }
+
+}

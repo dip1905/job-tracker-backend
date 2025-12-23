@@ -1,0 +1,79 @@
+package com.app.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.app.model.JobApplication;
+import com.app.model.User;
+import com.app.service.JobApplicationService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/jobs")
+//@CrossOrigin("http://localhost:5173")
+public class JobApplicationController {
+
+    private final JobApplicationService service;
+
+    public JobApplicationController(JobApplicationService service) {
+        this.service = service;
+    }
+
+    @PostMapping("/add")
+    public JobApplication addJob(@RequestBody JobApplication application,
+    		@RequestParam(name = "userId") Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return service.add(application, user);
+    }
+
+
+    @GetMapping("/myjobs")
+    public List<JobApplication> getMyJobs(@RequestParam(value = "userId", required = true) Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return service.getAllByUser(user);
+    }
+
+    @GetMapping("/status/{status}")
+    public List<JobApplication> getByStatus(@PathVariable String status,
+    		@RequestParam(value = "userId", required = true) Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return service.getByStatusAndUser(status, user);
+    }
+
+    @GetMapping("/search/{company}")
+    public List<JobApplication> searchByCompany(@PathVariable String company,
+    		@RequestParam(value = "userId", required = true) Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return service.searchByCompanyAndUser(company, user);
+    }
+    
+    @GetMapping("/{id}")
+    public JobApplication getById(@PathVariable Long id,
+    		@RequestParam(value = "userId", required = true) Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return service.getById(id, user);
+    }
+
+    @PutMapping("/update/{id}")
+    public JobApplication updateJob(@PathVariable Long id,
+                                    @RequestBody JobApplication job,
+                                    @RequestParam(value = "userId", required = true) Long userId) {
+        User user = new User();
+        user.setId(userId);
+        return service.update(id, job, user);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteJob(@PathVariable Long id,
+    		@RequestParam(value = "userId", required = true) Long userId) {
+        User user = new User();
+        user.setId(userId);
+        service.delete(id, user);
+    }
+
+}

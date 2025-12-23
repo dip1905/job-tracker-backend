@@ -1,0 +1,67 @@
+package com.app.service;
+
+import org.springframework.stereotype.Service;
+
+import com.app.model.JobApplication;
+import com.app.model.User;
+import com.app.repository.JobApplicationRepository;
+
+import java.util.List;
+
+@Service
+public class JobApplicationService {
+
+    private final JobApplicationRepository repo;
+
+    public JobApplicationService(JobApplicationRepository repo) {
+        this.repo = repo;
+    }
+
+    public JobApplication add(JobApplication application, User user) {
+        application.setUser(user);
+        return repo.save(application);
+    }
+
+    public List<JobApplication> getAllByUser(User user) {
+        return repo.findByUser(user);
+    }
+
+    public List<JobApplication> getByStatusAndUser(String status, User user) {
+        return repo.findByStatusAndUser(status, user);
+    }
+
+    public List<JobApplication> searchByCompanyAndUser(String company, User user) {
+        return repo.findByCompanyNameContainingIgnoreCaseAndUser(company, user);
+    }
+    
+    public JobApplication getById(Long id, User user) {
+        JobApplication job = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        if (!job.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Access denied");
+        }
+
+        return job;
+    }
+    
+    public JobApplication update(Long id, JobApplication updatedJob, User user) {
+        JobApplication job = getById(id, user); // ownership check
+
+        job.setCompanyName(updatedJob.getCompanyName());
+        job.setContact(updatedJob.getContact());
+        job.setEmail(updatedJob.getEmail());
+        job.setJobTitle(updatedJob.getJobTitle());
+        job.setJobLink(updatedJob.getJobLink());
+        job.setAppliedDate(updatedJob.getAppliedDate());
+        job.setStatus(updatedJob.getStatus());
+        job.setNotes(updatedJob.getNotes());
+
+        return repo.save(job);
+    }
+
+    public void delete(Long id, User user) {
+        JobApplication job = getById(id, user); // ownership check
+        repo.delete(job);
+    }
+}

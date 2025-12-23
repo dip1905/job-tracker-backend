@@ -1,0 +1,13 @@
+package com.app.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.app.model.JobApplication;
+
+public interface JobApplicationRepository extends JpaRepository<JobApplication, Long> {
+
+    List<JobApplication> findByStatus(String status);
+    List<JobApplication> findByCompanyNameContainingIgnoreCase(String companyName);
+}

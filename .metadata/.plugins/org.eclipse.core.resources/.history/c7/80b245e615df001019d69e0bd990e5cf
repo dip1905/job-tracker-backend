@@ -1,0 +1,45 @@
+package com.app.service;
+
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import com.app.model.User;
+import com.app.repository.UserRepository;
+import com.app.security.JwtUtil;
+
+@Service
+public class AuthService {
+
+    private final UserRepository repo;
+    private final BCryptPasswordEncoder encoder;
+    private final JwtUtil jwtUtil;
+
+    public AuthService(UserRepository repo,
+                       BCryptPasswordEncoder encoder,
+                       JwtUtil jwtUtil) {
+        this.repo = repo;
+        this.encoder = encoder;
+        this.jwtUtil = jwtUtil;
+    }
+
+    public void register(String username, String password) {
+        if (repo.findByUsername(username).isPresent()) {
+            throw new RuntimeException("User already exists");
+        }
+
+        String encodedPassword = encoder.encode(password);
+        User user = new User(username, encodedPassword, "USER");
+        repo.save(user);
+    }
+
+    public String login(String username, String password) {
+        User user = repo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+
+        if (!encoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        return jwtUtil.generateToken(username);
+    }
+}
