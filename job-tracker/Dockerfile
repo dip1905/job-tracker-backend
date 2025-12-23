@@ -1,28 +1,22 @@
-# Use official Eclipse Temurin Java 17 image
-FROM eclipse-temurin:17-jdk
-
-# Set working directory
+# ===============================
+# 1. Build stage
+# ===============================
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
+RUN mvn dependency:go-offline
 
-# Give permission to mvnw
-RUN chmod +x mvnw
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Download dependencies
-RUN ./mvnw dependency:go-offline
+# ===============================
+# 2. Run stage
+# ===============================
+FROM eclipse-temurin:17-jre
+WORKDIR /app
 
-# Copy source code
-COPY src src
+COPY --from=build /app/target/jobtracker-0.0.1-SNAPSHOT.jar app.jar
 
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Expose port (Render provides PORT dynamically)
 EXPOSE 8080
-
-# Run the Spring Boot app
-CMD ["java", "-jar", "target/*.jar"]
+CMD ["java", "-jar", "app.jar"]
