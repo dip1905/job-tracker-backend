@@ -1,22 +1,28 @@
-# Step 1: Use official Java 17 image
-FROM openjdk:17-jdk-alpine
+# Use official Eclipse Temurin Java 17 image
+FROM eclipse-temurin:17-jdk
 
-# Step 2: Set working directory inside container
+# Set working directory
 WORKDIR /app
 
-# Step 3: Copy Maven wrapper and pom.xml
+# Copy Maven wrapper and pom.xml
+COPY pom.xml .
 COPY mvnw .
 COPY .mvn .mvn
-COPY pom.xml .
 
-# Step 4: Copy source code
-COPY src ./src
+# Give permission to mvnw
+RUN chmod +x mvnw
 
-# Step 5: Build the Spring Boot app
-RUN ./mvnw clean package -DskipTests || mvn clean package -DskipTests
+# Download dependencies
+RUN ./mvnw dependency:go-offline
 
-# Step 6: Expose port 8080
+# Copy source code
+COPY src src
+
+# Build the application
+RUN ./mvnw clean package -DskipTests
+
+# Expose port (Render provides PORT dynamically)
 EXPOSE 8080
 
-# Step 7: Command to run the app
-CMD ["java", "-jar", "target/job-tracker-0.0.1-SNAPSHOT.jar"]
+# Run the Spring Boot app
+CMD ["java", "-jar", "target/*.jar"]
