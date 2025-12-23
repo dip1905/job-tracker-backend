@@ -18,7 +18,7 @@ public class CorsConfig {
 
         config.setAllowedOrigins(Arrays.asList(
                // "http://localhost:3000",
-                "https://jobapplicationstracker.netlify.app/"
+                "https://job-application-tracker-bj48.onrender.com"
         ));
 
         config.setAllowedMethods(Arrays.asList(
